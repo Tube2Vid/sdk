@@ -1,26 +1,39 @@
+// Response and request shapes of the public Tube2Vid API (/v1/*). Kept in sync with openapi/openapi.yaml.
+
 export type JobMode = "auto" | "video" | "audio" | "gallery";
+export type JobState = "queued" | "running" | "completed" | "failed";
+export type PlatformStatusValue = "operational" | "degraded" | "partial_outage" | "down" | "beta";
+
+export type ProofOfWork = {
+  nonce: string;
+  expiresAt: string;
+  difficulty: number;
+  signature: string;
+  /** Any string such that sha256(`${nonce}.${expiresAt}.${difficulty}.${solution}`) starts with `difficulty` hex zeros. */
+  solution: string;
+};
 
 export type JobSubmitInput = {
   url: string;
+  /** Force a platform slug instead of detecting it from the URL. */
   platform?: string;
   mode?: JobMode;
   format?: string;
   quality?: string;
+  /** Browser-only human check; not needed with an API key. */
   turnstileToken?: string;
-  pow?: {
-    nonce: string;
-    expiresAt: string;
-    difficulty: number;
-    signature: string;
-    solution: string;
-  };
+  /** Browser-only work challenge; not needed with an API key. */
+  pow?: ProofOfWork;
 };
 
 export type QueuedJobResponse = {
   jobId: string;
-  status: "queued";
+  /** "queued" for a new job; a deduplicated public submission returns the existing job's state. */
+  status: JobState;
   platform: string;
   estimatedCredits: number;
+  /** True when a public submission was folded into an identical job from the last minute. */
+  deduped?: boolean;
 };
 
 export type PlatformSummary = {
@@ -28,7 +41,7 @@ export type PlatformSummary = {
   name: string;
   category: string;
   supportLevel: string;
-  publicClaim: string;
+  publicClaim: boolean;
   capabilities: string[];
   providers: Array<{
     id: string;
@@ -42,6 +55,7 @@ export type PlatformHealthRow = {
   name: string;
   category: string;
   supportLevel: string;
+  status: PlatformStatusValue;
   auditCategory: string;
   provider?: string;
   providerKind?: string;
@@ -49,18 +63,9 @@ export type PlatformHealthRow = {
   medianExtractMs?: number;
   lastCheckedAt?: string;
   note?: string;
+  reason?: string;
   authNeeded?: boolean;
   repaired?: boolean;
-};
-
-export type RecentDownload = {
-  platform: string;
-  title?: string;
-  sourceUrl?: string;
-  mode: string;
-  format: string;
-  status: string;
-  createdAt: string;
 };
 
 export type JobEvent = {
@@ -75,9 +80,11 @@ export type JobEvent = {
 export type PublicJobStatus = {
   jobId: string;
   platform: string;
-  status: "queued" | "running" | "completed" | "failed";
+  status: JobState;
   progress: number;
   provider?: string;
+  /** True when the file came from a reduced-quality last-resort provider. */
+  fallback?: boolean;
   title?: string;
   errorCode?: string;
   errorMessage?: string;
@@ -86,7 +93,7 @@ export type PublicJobStatus = {
   updatedAt: string;
   latestEvent?: {
     stage: string;
-    message: string;
+    message?: string;
     details?: Record<string, unknown> | null;
     createdAt: string;
   };
@@ -94,6 +101,7 @@ export type PublicJobStatus = {
 
 export type JobStatus = {
   id: string;
+  jobId?: string;
   userId?: string;
   apiKeyId?: string;
   url: string;
@@ -102,13 +110,15 @@ export type JobStatus = {
   format: string;
   quality: string;
   creditsReserved: number;
-  status: "queued" | "running" | "completed" | "failed";
+  status: JobState;
   progress: number;
   creditsCharged: number;
   provider?: string;
   title?: string;
   outputPath?: string;
+  outputStorageKey?: string;
   outputSize?: number;
+  thumbnailUrl?: string;
   errorCode?: string;
   errorMessage?: string;
   completedAt?: string;
@@ -153,4 +163,62 @@ export type OperationalMetrics = {
     code: string;
     message: string;
   }>;
+};
+
+export type ServiceHealth = {
+  ok: boolean;
+  service: string;
+  time: string;
+};
+
+export type PowChallenge = {
+  nonce: string;
+  expiresAt: string;
+  difficulty: number;
+  signature: string;
+};
+
+export type ApiKeyScope = "jobs:write" | "jobs:read" | "usage:read" | "keys:read" | "keys:write" | "billing:write";
+
+export type ApiKeyCreateInput = {
+  name: string;
+  /** Defaults to ["jobs:write", "jobs:read", "usage:read"]. */
+  scopes?: ApiKeyScope[];
+  /** 1-1000, defaults to 60. */
+  rateLimitPerMinute?: number;
+};
+
+export type CreatedApiKey = {
+  id: string;
+  name: string;
+  /** The plaintext key. It is only ever returned once. */
+  key: string;
+  prefix: string;
+  scopes: string[];
+};
+
+export type ApiKeySummary = {
+  id: string;
+  name: string;
+  prefix: string;
+  scopes: string[];
+  rateLimitPerMinute: number;
+  revokedAt?: string;
+  createdAt: string;
+};
+
+export type CheckoutInput = {
+  /** 1,000-250,000 credits. */
+  credits?: number;
+  /** Legacy fixed packs. */
+  pack?: "starter" | "builder" | "scale";
+};
+
+export type CheckoutSession = {
+  checkoutUrl: string | null;
+  mode: "stripe" | "placeholder";
+  sessionId?: string;
+  credits: number;
+  amountCents: number;
+  message?: string;
 };

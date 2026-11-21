@@ -1,6 +1,30 @@
 {
   "name": "@tube2vid/sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "description": "Typed, zero-dependency TypeScript/JavaScript client for the Tube2Vid video downloader API: YouTube, TikTok, Instagram and 1,800+ sites.",
+  "license": "MIT",
+  "homepage": "https://tube2vid.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tube2Vid/sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tube2Vid/sdk/issues"
+  },
+  "keywords": [
+    "tube2vid",
+    "youtube downloader",
+    "tiktok downloader",
+    "instagram downloader",
+    "video downloader api",
+    "youtube api",
+    "media download",
+    "yt-dlp alternative",
+    "api client",
+    "sdk",
+    "typescript",
+    "javascript"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,11 +34,27 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test src/*.test.ts",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
+  },
+  "author": "Tube2Vid (https://tube2vid.com)",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
