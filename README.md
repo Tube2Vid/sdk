@@ -59,8 +59,7 @@ Public, no key needed:
 | `getPlatformHealth()` | `GET /v1/platforms/health` |
 | `getStatusHistory(limit?, platform?)` | `GET /v1/status/history` |
 | `getOperationalMetrics()` | `GET /v1/ops/metrics` |
-| `getPowChallenge()` | `GET /v1/challenges/pow` |
-| `submitPublicJob(input)` | `POST /v1/public/jobs` (browser flow: needs a solved `pow`) |
+| `submitPublicJob(input)` | `POST /v1/public/jobs` (browser flow: needs an Atlas `captchaToken`) |
 | `getPublicJobStatus(jobId)` | `GET /v1/public/jobs/{jobId}` |
 | `getPublicDownloadUrl(jobId)`, `getPublicThumbnailUrl(jobId)` | URL builders |
 
@@ -81,7 +80,7 @@ With an API key:
 
 ## Errors
 
-Any non-2xx response throws a `Tube2VidApiError` with `status`, `message`, `code` (when the API sends one, e.g. `turnstile_failed`), the raw `body`, and the parsed `data`. A `402` means the account is out of credits; `data.requiredCredits` says how many the job needs.
+Any non-2xx response throws a `Tube2VidApiError` with `status`, `message`, `code` (when the API sends one, e.g. `captcha_failed`), the raw `body`, and the parsed `data`. A `402` means the account is out of credits; `data.requiredCredits` says how many the job needs.
 
 ```ts
 import { Tube2VidApiError } from "@tube2vid/sdk";

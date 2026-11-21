@@ -10,7 +10,6 @@ import type {
   OperationalMetrics,
   PlatformHealthRow,
   PlatformSummary,
-  PowChallenge,
   PublicJobStatus,
   QueuedJobResponse,
   ServiceHealth,
@@ -43,7 +42,7 @@ export class Tube2VidApiError extends Error {
   readonly status: number;
   /** Raw response body, if any. */
   readonly body?: string;
-  /** Machine-readable error code when the API sent one (e.g. "turnstile_failed"). */
+  /** Machine-readable error code when the API sent one (e.g. "captcha_failed"). */
   readonly code?: string;
   /** Parsed JSON body, if the body was JSON. */
   readonly data?: unknown;
@@ -103,11 +102,7 @@ export class Tube2VidClient {
     return this.getJson<OperationalMetrics>("/v1/ops/metrics");
   }
 
-  async getPowChallenge(): Promise<PowChallenge> {
-    return this.getJson<PowChallenge>("/v1/challenges/pow");
-  }
-
-  /** Anonymous submission, as the website does it. Requires `pow` (and `turnstileToken` where the human check is on). */
+  /** Anonymous submission, as the website does it. Requires a solved Atlas `captchaToken`; scripts should use submitJob with an API key. */
   async submitPublicJob(input: JobSubmitInput): Promise<QueuedJobResponse> {
     return this.postJson<QueuedJobResponse>("/v1/public/jobs", input);
   }

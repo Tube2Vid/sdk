@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 (2026-11-21)
+
+- The anonymous browser flow now uses an Atlas captcha: `submitPublicJob` takes `captchaToken` instead of `pow` and `turnstileToken`, and the API answers a failed check with code `captcha_failed`.
+- Removed `getPowChallenge`, `PowChallenge` and `ProofOfWork`: the API no longer serves `GET /v1/challenges/pow`. Calls with an API key are unchanged.
+
 ## 1.1.0 (2026-11-21)
 
 - The client reads the API key from `TUBE2VID_API_KEY` when no `apiKey` is passed (Node, Deno, Bun).

@@ -4,15 +4,6 @@ export type JobMode = "auto" | "video" | "audio" | "gallery";
 export type JobState = "queued" | "running" | "completed" | "failed";
 export type PlatformStatusValue = "operational" | "degraded" | "partial_outage" | "down" | "beta";
 
-export type ProofOfWork = {
-  nonce: string;
-  expiresAt: string;
-  difficulty: number;
-  signature: string;
-  /** Any string such that sha256(`${nonce}.${expiresAt}.${difficulty}.${solution}`) starts with `difficulty` hex zeros. */
-  solution: string;
-};
-
 export type JobSubmitInput = {
   url: string;
   /** Force a platform slug instead of detecting it from the URL. */
@@ -20,10 +11,8 @@ export type JobSubmitInput = {
   mode?: JobMode;
   format?: string;
   quality?: string;
-  /** Browser-only human check; not needed with an API key. */
-  turnstileToken?: string;
-  /** Browser-only work challenge; not needed with an API key. */
-  pow?: ProofOfWork;
+  /** Browser flow only: an Atlas captcha token (`atlas1.…`) for action "download". Not needed with an API key. */
+  captchaToken?: string;
 };
 
 export type QueuedJobResponse = {
@@ -169,13 +158,6 @@ export type ServiceHealth = {
   ok: boolean;
   service: string;
   time: string;
-};
-
-export type PowChallenge = {
-  nonce: string;
-  expiresAt: string;
-  difficulty: number;
-  signature: string;
 };
 
 export type ApiKeyScope = "jobs:write" | "jobs:read" | "usage:read" | "keys:read" | "keys:write" | "billing:write";
